@@ -1,0 +1,11 @@
+{
+  "type": "module",
+  "dependencies": {
+    "@hono/node-server": "^1.19.7",
+    "bcrypt": "^6.0.0",
+    "better-sqlite3": "^12.5.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "hono": "^4.11.3"
+  }
+}
