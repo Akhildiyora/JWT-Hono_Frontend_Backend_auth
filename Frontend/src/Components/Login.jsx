@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import GoogleLogin from "./GoogleLogInBtn";
 
 export default function SignIn() {
     const navigate = useNavigate();
@@ -46,7 +47,8 @@ export default function SignIn() {
                         className="w-full mb-4 p-2 border rounded" required
                     />
 
-                    <input type="submit" value="Login" className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700" />
+                    <input type="submit" value="Login" className="mb-4 w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700" />
+                    <GoogleLogin />
                 </form>
                 <Link className="text-blue-600" to="/">Create Account</Link>
             </div>

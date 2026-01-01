@@ -5,13 +5,14 @@ import { sign, verify } from 'hono/jwt';
 import bcrypt from 'bcrypt';
 import { cors } from 'hono/cors';
 import db from './Database/database.js';
+import { OAuth2Client } from "google-auth-library";
 
 const JWT_SECRET = process.env.SECRET
 
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
 const app = new Hono();
-app.use('*', cors({
-    origin: 'http://localhost:5173',
-}))
+app.use('*', cors());
 
 app.get('/', (c) => c.text('working'))
 
@@ -44,6 +45,50 @@ app.post('/login', async (c) => {
 
     return c.json({ success: true, message: 'Login Successful', token, user: { email: user.email, username: user.username, }, })
 })
+
+app.post("/google-login", async (c) => {
+    const { token } = await c.req.json();
+    if (!token) {
+        return c.json({ error: "Token missing" }, 400);
+    }
+    const ticket = await googleClient.verifyIdToken({
+        idToken: token,
+        audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+    const {
+        email,
+        name,
+        sub: googleId,
+        email_verified,
+    } = payload;
+    if (!email || !email_verified) {
+        return c.json({ error: "Email not verified" }, 401);
+    }
+    let user = db
+        .prepare("SELECT * FROM users WHERE email = ?")
+        .get(email);
+    if (!user) {
+        db.prepare(`
+        INSERT INTO users (username, email, password, age)
+        VALUES (?, ?, ?, ?)
+      `).run(name, email, "GOOGLE_AUTH", null);
+    }
+    const appToken = await sign(
+        {
+            email,
+            provider: "google",
+            exp: Math.floor(Date.now() / 1000) + 60 * 60, 
+        },
+        JWT_SECRET
+    );
+    return c.json({
+        success: true,
+        token: appToken,
+        user: { email, name },
+    });
+
+});
 
 const authMiddleware = async (c, next) => {
     const authHeader = c.req.header('Authorization')

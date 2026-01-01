@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import GoogleLogin from './GoogleLogInBtn';
 
 export default function SignUp() {
     const navigate = useNavigate();
@@ -67,7 +68,8 @@ export default function SignUp() {
                         onChange={handleChange} required
                     />
 
-                    <input type="submit" value="Create User" className="w-full bg-green-600 text-white p-2 rounded hover:bg-green-700" />
+                    <input type="submit" value="Create User" className="mb-4 w-full bg-green-600 text-white p-2 rounded hover:bg-green-700" />
+                    <GoogleLogin />
                 </form>
                 <Link className="text-blue-600" to="/login">Login Here</Link>
             </div>
